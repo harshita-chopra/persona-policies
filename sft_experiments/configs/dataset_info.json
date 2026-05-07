@@ -1,0 +1,14 @@
+{
+  "retail_baseline_train":      {"file_name": "retail_baseline/train.json",                "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "retail_baseline_val":        {"file_name": "retail_baseline/val.json",                  "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "retail_mixed_train":         {"file_name": "retail_mixed_baseline_ppol/train.json",     "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "retail_mixed_val":           {"file_name": "retail_mixed_baseline_ppol/val.json",       "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "airline_baseline_train":     {"file_name": "airline_baseline/train.json",               "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "airline_baseline_val":       {"file_name": "airline_baseline/val.json",                 "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "airline_mixed_train":        {"file_name": "airline_mixed_baseline_ppol/train.json",    "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "airline_mixed_val":          {"file_name": "airline_mixed_baseline_ppol/val.json",      "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "retail_airline_baseline_train": {"file_name": "retail_airline_baseline/train.json",     "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "retail_airline_baseline_val":   {"file_name": "retail_airline_baseline/val.json",       "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "retail_airline_mixed_train":    {"file_name": "retail_airline_mixed_baseline_ppol/train.json", "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}},
+  "retail_airline_mixed_val":      {"file_name": "retail_airline_mixed_baseline_ppol/val.json",   "formatting": "sharegpt", "columns": {"messages": "conversations", "system": "system", "tools": "tools"}}
+}

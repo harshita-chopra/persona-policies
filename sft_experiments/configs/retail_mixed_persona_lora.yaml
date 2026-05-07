@@ -1,0 +1,6 @@
+_inherit: _base_lora.yaml
+dataset: retail_mixed_train
+eval_dataset: retail_mixed_val
+output_dir: saves/retail_mixed_persona_lora
+max_steps: 48
+save_steps: 48

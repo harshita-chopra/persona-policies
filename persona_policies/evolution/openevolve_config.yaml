@@ -1,0 +1,76 @@
+# OpenEvolve configuration for Persona Policy evolution
+# CLI: openevolve-run persona_policies/evolution/initial_generator.py persona_policies/evolution/fitness.py --config ...
+#
+# Persistence: checkpoint_interval saves under <output>/checkpoints/.
+# Per-eval τ² logs go to training/simulations/iter_NNNN/ (see config.simulations_dir), not under <output>.
+
+max_iterations: 100
+checkpoint_interval: 1
+random_seed: 42
+log_level: INFO
+
+# initial_generator.py is large; mutations often exceed OpenEvolve default 10_000 chars
+max_code_length: 65536
+
+llm:
+  # Primary Gemini via OpenRouter (OPENROUTER_API_KEY); fallback is direct
+  # Google Gemini (GEMINI_API_KEY) if OpenRouter fails.
+  primary_model: openrouter/google/gemini-3-flash-preview
+  primary_model_weight: 1.0
+  secondary_model: gemini/gemini-3-flash-preview
+  # Keep direct Google out of normal sampling; fallback is invoked after OpenRouter retries fail.
+  secondary_model_weight: 0.0
+  # Gemini 3 thinking level; OpenRouter Gemma calls ignore this provider-specific setting.
+  reasoning_effort: minimal
+  temperature: 1.0
+  # Large enough for full rewrites of POPULATION_PROMPT / ROLEPLAY_PROMPT in one mutation.
+  max_tokens: 8192
+  timeout: 60
+
+evaluator:
+  # Wall-clock cap for one full `fitness.evaluate()` call (train batch: eval_batch_size tasks × n_personas τ² rollouts).
+  timeout: 3600
+  max_retries: 2
+  # Parallel evaluators interleave tqdm + τ² logs on one terminal (confusing). Use 1 unless
+  # you redirect each worker to its own log file.
+  parallel_evaluations: 1
+  cascade_evaluation: false
+
+# Static mutator guidance lives in templates/system_message.txt (path is resolved relative to this YAML file). Per-iteration dynamic feedback is returned as the `evaluator_reflection`
+# artifact by evolution/fitness.py and injected into the mutation prompt via {artifacts}.
+prompt:
+  num_top_programs: 2
+  template_dir: templates
+  include_artifacts: true
+  # Randomize one section of the diff_user template every iteration so the mutator is nudged toward a different lever each call. 
+  # The placeholder `{mutation_angle}` lives in templates/diff_user.txt; the sampler replaces it with a random entry from the list below BEFORE any .format() call, so variations must not contain `{...}`.
+  use_template_stochasticity: true
+  template_variations:
+    mutation_angle:
+      - "Redesign DIVERSITY_AXES: add, drop, or rewrite behaviors to reveal more human-plausible traits. Introduce multiple other orthogonal human behaviors that could improve the score. Maintain the same output format."
+      - "Edit population generation prompts to increase diversity in communication style when they interact with the agent. Modify, add, or remove behaviors from DIVERSITY_AXES to ensure that axis_placement leads to diverse yet psychologically coherent personas."
+      - "Rewrite roleplay expansion strategy to make dialogue behavior more natural: focus on way of typing, reactions to errors, pushback, and personality. Make users context-aware, imperfect, and realistic in how they reveal information based on assigned behavior."      
+      - "Suggest a structural change. Write different roleplay prompts based on the population member's assigned behaviors and use them conditionally. Use branching and creatively update the logic in generate_personas_detailed."
+      - "Implement a completely different approach to improve the program, such as generating more than N personas and a pruning/ranking logic after population generation to retain N members. Or a new way of generating population and roleplay instructions."
+
+database:
+  population_size: 50
+  num_islands: 5
+  migration_interval: 5
+  migration_rate: 0.2
+  elite_selection_ratio: 0.2
+  log_prompts: false
+  embedding_model: null
+  feature_dimensions:
+    - human_likeness
+    - intra_set_diversity
+  feature_bins: 5
+
+early_stopping_metric: combined_score
+
+# Optional: full evolution trace (jsonl under output dir). Large; enable only if needed.
+evolution_trace:
+  enabled: false
+  format: json
+  include_code: false
+  include_prompts: false

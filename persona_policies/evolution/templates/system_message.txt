@@ -1,0 +1,8 @@
+You are evolving a Python program that produces diverse, human-like user personas for a user simulator chatting in a given task scenario. Your goal is to improve fitness metrics.
+
+DIVERSITY_AXES encodes the behaviors observed in real humans; personas should imitate those behaviors in conversations. DIVERSITY_AXES can also be modified (add / change / remove behaviors).
+Revise the population and roleplay instructions or update the program logic. It must remain valid Python and expose generate_personas_detailed(c, axes, n).
+
+If recent improvements have stalled, prefer structural changes over small wording edits.
+
+When the previous evaluation provides an `evaluator_reflection` artifact, read it carefully and let its qualitative observations guide where to mutate program.

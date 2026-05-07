@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# OS / editor
+.DS_Store
+*.swp
+.vscode/
+
+tau2_outputs/
+
+# Persona Policies run artifacts
+persona_policies/outputs/training*/
+persona_policies/outputs/reference_data/*.json
+persona_policies/outputs/reference_data/*.pkl
+persona_policies/outputs/testing/
+
+# Latex
+paper/
+
+.env
