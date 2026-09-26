@@ -1,0 +1,21 @@
+# Conda environment for Persona Policies.
+#
+# Prerequisites: install τ²-bench (tau2-bench) from its official repository
+# before creating this environment, or install it manually afterwards:
+#   pip install -e /path/to/tau2-bench
+#
+# From the repository root:
+#   conda env create -f environment.yml
+#   conda activate persona-policies
+
+name: persona-policies
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+    # Persona Policies stack (OpenEvolve, NLTK, sklearn, plotting, …)
+    - "-r ./persona_policies/requirements.txt"
+    # Tests
+    - "pytest>=8.0"

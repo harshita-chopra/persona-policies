@@ -1,0 +1,6 @@
+_inherit: _base_lora.yaml
+dataset: airline_baseline_train
+eval_dataset: airline_baseline_val
+output_dir: saves/airline_baseline_lora
+max_steps: 48
+save_steps: 48
