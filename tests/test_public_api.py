@@ -15,6 +15,7 @@ def test_all_listed_names_are_attributes():
 
 def test_expected_public_surface():
     expected = {
+        "__version__",
         "PPolConfig",
         "default_config",
         "DEFAULT_EVOLVE_ITERATIONS",

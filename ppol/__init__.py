@@ -35,6 +35,14 @@ discriminator → evolve → benchmark).
 """
 
 # Config
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _pkg_version
+
+try:
+    __version__ = _pkg_version("ppol")
+except PackageNotFoundError:          # running from a source checkout
+    __version__ = "0.0.0.dev0"
+
 from ppol.config import DEFAULT_EVOLVE_ITERATIONS, PPolConfig, default_config
 
 # Core types and abstractions
@@ -65,6 +73,7 @@ from ppol.fingerprinting import (
 from ppol.injection import inject_persona_into_system_prompt
 
 __all__ = [
+    "__version__",
     # Config
     "PPolConfig",
     "default_config",
