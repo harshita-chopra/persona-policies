@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ppol"
-version = "0.1.0"
+version = "0.1.1"
 description = "Persona Policies: evolve diverse, human-like persona overlays for evaluating dialogue agents."
 readme = "ppol/README.md"
 requires-python = ">=3.10"
