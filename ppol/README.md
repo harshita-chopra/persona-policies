@@ -8,14 +8,12 @@ Evolve and evaluate structured behavioral personas for dialogue agents. A person
 
 ```bash
 pip install ppol
-pip install openevolve   # required for PPol.evolve()
 ```
 
-For τ²-bench (a built-in runner):
+For the τ²-bench example:
 
 ```bash
-git clone https://github.com/sierra-research/tau2-bench
-pip install -e tau2-bench/
+pip install git+https://github.com/sierra-research/tau2-bench
 ```
 
 Set your API key (any LiteLLM-compatible provider):
@@ -84,7 +82,7 @@ Human traces  +  Baseline rollouts (no persona)
 **Discriminator** — RF trained on human vs. baseline fingerprints. During evolution, each candidate persona is scored by P(human) from this classifier.  
 **Evolved generator G(c, D, N)** — given a task context, behavioral axes, and count N, returns N diverse persona strings.
 
-End-to-end working examples live in [`examples/`](../examples/) — e.g. `examples/tau2bench/` runs the full pipeline on τ²-bench retail + airline tasks with a human-annotator reference.
+End-to-end working examples live in [`examples/`](https://github.com/harshita-chopra/persona-policies/tree/main/examples) — e.g. `examples/tau2bench/` runs the full pipeline on τ²-bench retail + airline tasks with a human-annotator reference.
 
 ---
 
@@ -275,7 +273,7 @@ print(metrics["combined_score"])
 ## Using τ²-bench
 
 τ²-bench is shipped as a worked example, not as a built-in runner. The runner
-class and τ² glue live in [`examples/tau2bench/`](../examples/tau2bench/) —
+class and τ² glue live in [`examples/tau2bench/`](https://github.com/harshita-chopra/persona-policies/tree/main/examples/tau2bench) —
 treat that directory as the τ² integration:
 
 ```python

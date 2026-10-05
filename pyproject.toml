@@ -49,6 +49,7 @@ dev = [
 
 [project.urls]
 Source = "https://github.com/harshita-chopra/persona-policies"
+Website = "https://harshita-chopra.github.io/persona-policies/"
 
 [tool.setuptools]
 packages = [
