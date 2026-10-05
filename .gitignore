@@ -14,16 +14,13 @@ build/
 .DS_Store
 *.swp
 .vscode/
+.claude/
 
-tau2_outputs/
-
-# Persona Policies run artifacts
-persona_policies/outputs/training*/
-persona_policies/outputs/reference_data/*.json
-persona_policies/outputs/reference_data/*.pkl
-persona_policies/outputs/testing/
-
-# Latex
-paper/
 
 .env
+
+# ppol run artifacts (any example's outputs/ dir)
+**/outputs/
+
+# Local-only working files
+paper-local/

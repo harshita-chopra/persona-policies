@@ -1,92 +1,94 @@
 # Persona Policies
 
-**Persona Policies (PPol)** is a framework for evolving realistic, diverse user-simulator personas for LLM agent benchmarks. It is a plug-and-play control layer that injects behavioral variation into existing user simulators without changing task goals, rewards, or environment state.
-
-## Overview
-
-Default LLM-based user simulators (e.g., in τ²-bench) are overly cooperative and homogeneous, producing a behavioral gap relative to real users. PPol narrows this gap by:
-
-1. Generating a population of **persona policies** — short natural-language instructions appended to the user simulator's system prompt that control *how* the user communicates while keeping task facts fixed.
-2. Optimizing the persona generator via **evolutionary program search** (OpenEvolve), guided by two objectives: **human-likeness** (a trained Random Forest discriminator on behavioral fingerprints) and **behavioral coverage** (Chamfer distance to a human reference distribution).
-
-## Quick Start
-
-### Prerequisites
-
-1. **Clone this repository**
-2. **Install τ²-bench** from its official repository (not included here):
-   ```bash
-   git clone <tau2-bench-repo-url>
-   pip install -e ./tau2-bench
-   ```
-3. **Create the conda environment**:
-   ```bash
-   conda env create -f environment.yml
-   conda activate persona-policies
-   ```
-4. **Set API credentials** for your LLM provider(s):
-   ```bash
-   export OPENROUTER_API_KEY=...   # for OpenRouter models
-   export AWS_REGION_NAME=us-west-2  # if using Bedrock models
-   ```
-5. **Wire OpenEvolve through LiteLLM** (run once per environment):
-   ```bash
-   python persona_policies/evolution/install_openevolve_litellm_pth.py
-   ```
-
-### Running the Full Pipeline
+**ppol** is a Python framework for evolving realistic, diverse user-simulator personas for LLM agent benchmarks. It is a plug-and-play overlay that injects behavioral variation into user simulators *without* changing task goals, rewards, or environment state.
 
 ```bash
-# 1. Collect baseline τ²-bench trajectories (no persona injection)
-python persona_policies/scripts/collect_baseline.py --n 100
-
-# 2. Train the behavioral discriminator (human vs. simulator)
-python persona_policies/scripts/train_discriminator.py
-
-# 3. Run OpenEvolve to evolve the persona generator
-python persona_policies/evolution/run_evolution.py --iterations 70
-
-# 4. Benchmark the evolved program on the test split
-python -m persona_policies.benchmark \
-    --best-program persona_policies/outputs/training_v1/openevolve/best/best_program.py
+pip install ppol
 ```
 
-Or use the convenience runner:
+## What it does
+
+LLM-based user simulators (τ²-bench, ColBench, etc.) tend to be overly cooperative and homogeneous — a behavioral gap relative to real users. ppol closes the gap by:
+
+1. **Generating a population of persona policies** — short natural-language overlays appended to the user simulator's system prompt that shape *how* the user communicates (terse, distracted, frustrated, guarded, …) while task facts stay fixed.
+2. **Optimizing the persona generator via evolutionary program search** (OpenEvolve), with two objectives:
+   - **Human-likeness** — mean `P(human)` from a trained Random Forest discriminator on behavioral fingerprints
+   - **Behavioral coverage** — two-sided Chamfer distance against a human reference distribution
+
+The result is a generator `G(c, D, N)` that, given a task context and number of personas, produces N diverse, human-shaped persona policies.
+
+## Quick start
+
+```python
+from ppol import DataLoader, PPol, SimpleEpisodeRunner, split_tasks
+from ppol.pipeline import collect_baseline, compute_human_reference, train_discriminator
+
+def my_agent(messages):           # any function: messages → reply
+    return "How can I help?"
+
+runner = SimpleEpisodeRunner(agent=my_agent, user_sim_model="gpt-4o-mini")
+tasks = DataLoader.load_tasks("tasks.json")          # your tasks
+train, val, _ = split_tasks(tasks)
+
+dialogs = DataLoader.load_dialogs("human_dialogs.json")   # your real human chats
+compute_human_reference(dialogs, "outputs/ref/human.json")
+collect_baseline(runner, tasks, "outputs/ref/baseline.json")
+train_discriminator("outputs/ref/human.json", "outputs/ref/baseline.json", "outputs/ref/disc.pkl")
+
+p = PPol(output_dir="outputs/my_run")
+p.evolve(runner=runner, train_tasks=train, val_tasks=val,
+         human_reference_path="outputs/ref/human.json",
+         baseline_path="outputs/ref/baseline.json",
+         discriminator_path="outputs/ref/disc.pkl",
+         iterations=50)
+```
+
+See **[ppol/README.md](ppol/README.md)** for the full walkthrough: human reference → baseline → discriminator → evolve → benchmark, plus a custom-runner template and τ²-bench example.
+
+## Repository layout
+
+```
+ppol/                       # The pip package — domain-agnostic
+├── core/                       # Task, EpisodeResult, EpisodeRunner, SimpleEpisodeRunner
+├── data/                       # DataLoader
+├── evolution/                  # OpenEvolve fitness + seed generator + templates
+├── analysis/                   # library-grade plot helpers
+├── config.py                   # PPolConfig
+├── discriminator.py            # RF behavioral classifier
+├── fingerprinting.py           # 19-feature behavioral fingerprint
+├── injection.py                # persona-injection template + helper
+├── llm.py                      # LiteLLM completion wrapper
+├── pipeline.py                 # PPol orchestrator + pipeline functions
+└── README.md                   # user-facing docs
+
+examples/
+├── tau2bench/                  # τ²-bench: runner + pipeline + benchmark
+├── colbench/                   # SWEET-RL/ColBench backend-programming collaboration
+└── wildchat/                   # open-domain chat (RealUserSim / WildChat-derived)
+
+tests/
+pyproject.toml
+```
+
+Each `examples/<name>/` follows the same pattern: a self-contained `EpisodeRunner` subclass plus its own driver and any domain-specific data/scripts. They are *not* part of the installed wheel — use them by running their scripts directly (`python examples/<name>/run_pipeline.py`) or by adding the directory to `PYTHONPATH`.
+
+**Data:** nothing to fetch manually. τ²-bench tasks come with the `tau2-bench` install; all human-reference datasets auto-download from the Hugging Face Hub on first use — τ² human dialogues (`cmu-lti/tau-usi`), ColBench (`facebook/collaborative_agent_bench` + `SALT-NLP/SWE-chat`), WildChat (`Salesforce/RealUserSim`).
+
+## Running τ²-bench
+
 ```bash
-python persona_policies/run_pipeline.py --iterations 70 --domain retail
+python examples/tau2bench/run_pipeline.py --iterations 200 --domain retail
 ```
 
-Full documentation, argument reference, and output layout: **[persona_policies/README.md](persona_policies/README.md)**.
+See [`examples/tau2bench/README.md`](examples/tau2bench/README.md) for individual steps and configuration. For evolution + benchmarking with a custom dataset, use the Python API in [`ppol/README.md`](ppol/README.md).
 
-## Agent Training
+## Citation
 
-`sft_experiments/` contains the LoRA fine-tuning code for training Gemma-4-31B on default-only vs. PPol-augmented τ²-bench rollouts. See **[sft_experiments/README.md](sft_experiments/README.md)** for the full pipeline (trajectory collection → ShareGPT conversion → LLaMA-Factory training → evaluation).
-
-## Repository Structure
-
+```bibtex
+@article{chopra2026persona,
+  title     = {Beyond Cooperative Simulators: Generating Realistic User Personas for Robust Evaluation of LLM Agents},
+  author    = {Chopra, Harshita and Ghate, Kshitish and Caliskan, Aylin and Kohno, Tadayoshi and Shah, Chirag and Jaques, Natasha},
+  journal   = {arXiv preprint arXiv:2605.12894},
+  year      = {2026},
+}
 ```
-persona_policies/          # Core Python package
-├── config.py              # Central configuration (PersonaPoliciesConfig)
-├── benchmark.py           # Test-split evaluation and plots
-├── evaluator.py           # Multi-objective scorer (human-likeness + coverage)
-├── discriminator.py       # Random Forest behavioral classifier
-├── fingerprinting.py      # 19-feature behavioral fingerprint extractor
-├── injector.py            # Persona injection into τ²-bench at runtime
-├── evolution/             # OpenEvolve integration
-│   ├── initial_generator.py   # The evolved program (G(c, D, N))
-│   ├── fitness.py             # OpenEvolve fitness callback
-│   ├── run_evolution.py       # Evolution launcher
-│   └── openevolve_config.yaml # Evolution hyperparameters
-├── scripts/               # Setup scripts (baselines, discriminator, etc.)
-├── data/                  # Human dialogue reference data
-└── outputs/               # Generated artifacts (gitignored; created at runtime)
-    ├── reference_data/    # Baselines, discriminators, human fingerprints
-    ├── training_<name>/   # OpenEvolve checkpoints and logs
-    └── testing/           # Benchmark results
-
-sft_experiments/           # Agent LoRA fine-tuning
-├── configs/               # LLaMA-Factory LoRA YAMLs (one per domain × regime)
-├── data/                  # Trajectory collection and ShareGPT data builder
-└── train/                 # Thin LLaMA-Factory launcher
-```
-

@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppol"
+version = "0.1.0"
+description = "Persona Policies: evolve diverse, human-like persona overlays for evaluating dialogue agents."
+readme = "ppol/README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Harshita Chopra", email = "hchopra3@cs.washington.edu" },
+]
+keywords = ["llm", "user-simulator", "dialogue", "evaluation", "evolution", "tau2-bench"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+    "tqdm>=4.65.0",
+    "litellm>=1.0.0",
+    "openai>=1.0.0",
+    "PyYAML>=6.0",
+    "openevolve>=0.4.0",
+]
+
+[project.optional-dependencies]
+# tau2-bench itself is not on PyPI — install from source:
+#   pip install git+https://github.com/sierra-research/tau2-bench
+# boto3 is only needed for Bedrock-hosted models.
+tau2bench = [
+    "boto3>=1.28.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-xdist>=3.0",
+]
+
+[project.urls]
+Source = "https://github.com/harshita-chopra/persona-policies"
+
+[tool.setuptools]
+packages = [
+    "ppol",
+    "ppol.analysis",
+    "ppol.core",
+    "ppol.data",
+    "ppol.evolution",
+    "ppol.evolution.baselines",
+]
+
+[tool.setuptools.package-data]
+"ppol" = ["py.typed"]
+"ppol.evolution" = ["templates/*.txt", "openevolve_config.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
