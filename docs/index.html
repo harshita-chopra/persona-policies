@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Persona Policies (PPol): A plug-and-play control layer that generates realistic, diverse user personas for robust evaluation and training of LLM agents.">
+  <meta name="keywords" content="Persona Policies, PPol, User Simulation, LLM Agents, Behavioral Diversity, Evolutionary Search">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Persona Policies: Beyond Cooperative Simulators</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <style>
+    .ppol-mono {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+    }
+    .results-table {
+      font-size: 0.85rem;
+    }
+    .results-table th, .results-table td {
+      padding: 0.5em 0.6em;
+      text-align: center;
+    }
+    .results-table th {
+      background-color: #f5f5f5;
+    }
+    .highlight-row {
+      background-color: #ecfaec;
+    }
+    .best-val {
+      font-weight: bold;
+    }
+    .metric-gain {
+      color: #006400;
+      font-weight: bold;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Beyond Cooperative Simulators: Generating Realistic User Personas for Robust Evaluation of LLM Agents</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Harshita Chopra<sup>&dagger;,&alpha;</sup>,</span>
+            <span class="author-block">Kshitish Ghate<sup>&dagger;,&alpha;</sup>,</span>
+            <span class="author-block">Aylin Caliskan<sup>&alpha;</sup>,</span>
+            <span class="author-block">Tadayoshi Kohno<sup>&beta;</sup>,</span>
+            <span class="author-block">Chirag Shah<sup>&alpha;</sup>,</span>
+            <span class="author-block">Natasha Jaques<sup>&alpha;</sup></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>&alpha;</sup>University of Washington, Seattle, WA</span>
+            <span class="author-block"><sup>&beta;</sup>Georgetown University, Washington, DC</span>
+          </div>
+          <div class="is-size-6 publication-authors" style="margin-top: 0.3em;">
+            <span class="author-block"><sup>&dagger;</sup>Primary contributors</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- Paper Link (arXiv). -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2605.12894"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/harshita-chopra/persona-policies"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser Figure -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/ppol_overview.png" alt="Persona Policies overview diagram" style="width: 100%;">
+      <h2 class="subtitle has-text-centered" style="margin-top: 1em;">
+        <span class="ppol-mono">PPol</span> evolves a Python persona generator via evolutionary program search
+        to produce diverse, human-like user personas that preserve benchmark task goals.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Large Language Model (LLM) agents are increasingly deployed in settings where they interact with a wide variety of people, including users who are unclear, impatient, or reluctant to share information. However, collecting real interaction data at scale remains expensive. The field has turned to LLM-based <em>user simulators</em> as stand-ins, but these simulators inherit the behavior of their underlying models: cooperative and homogeneous. As a result, agents that appear strong in simulation often fail under the unseen, diverse communication patterns of real users.
+          </p>
+          <p>
+            To narrow this gap, we introduce <strong>Persona Policies (<span class="ppol-mono">PPol</span>)</strong>, a plug-and-play control layer that induces realistic behavioral variation in user simulators while preserving the original task goals. Rather than hand-crafting personas, we cast persona generation as an LLM-driven evolutionary program search that optimizes a Python generator to discover behaviors and translate them into task-preserving roleplay <em>policies</em>. Candidate generators are guided by a multi-objective fitness score combining human-likeness with broad coverage of human behavioral patterns. Once optimized, the generator produces a diverse population of human-like personas for any task in the domain.
+          </p>
+          <p>
+            Across &tau;<sup>2</sup>-bench retail and airline domains, evolved <span class="ppol-mono">PPol</span> programs yield <strong>33&ndash;62% absolute gains</strong> in fitness score over the baseline simulator. In a blinded evaluation, annotators rated <span class="ppol-mono">PPol</span>-conditioned users as human <strong>80.4%</strong> of the time, close to real human traces and nearly twice as frequently as baseline simulators. Agents trained with <span class="ppol-mono">PPol</span> are more robust to challenging, out-of-distribution behaviors, improving task success by <strong>+17%</strong> relative to training only on existing simulated interactions.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+<!-- Key Idea -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Key Idea</h2>
+        <div class="content has-text-justified">
+          <p>
+            Default LLM user simulators are <em>cooperative</em> and <em>homogeneous</em>. They provide all requested information, use polished language, and behave identically across runs. Real users are messy: they withhold details, push back, use ambiguous language, and vary widely in patience and communication style. This <strong>behavioral gap</strong> means agents that ace simulation benchmarks may fail with real people.
+          </p>
+          <p>
+            <span class="ppol-mono">PPol</span> addresses this by appending short <em>persona policies</em> to the simulator's system prompt. Each policy controls <em>how</em> the simulated user communicates through tone, pacing, selective disclosure; without changing <em>what</em> task goals they pursue. We evolve a Python generator using <strong>OpenEvolve</strong>, scored on two objectives:
+          </p>
+          <ul>
+            <li><strong>Human-likeness:</strong> A trained discriminator measures the probability that a simulated conversation's behavioral fingerprint resembles real human dialogues.</li>
+            <li><strong>Behavioral coverage:</strong> The Chamfer distance between generated and human fingerprint distributions ensures the persona population spans diverse behavioral regions rather than collapsing to a single type.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Samples Figure -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Discovered Behaviors &amp; Sample Personas</h2>
+        <div class="content has-text-centered">
+          <img src="./static/images/samples_ppol.png" alt="Samples of discovered behavioral axes, generated personas, and reflection feedback" style="width: 100%;">
+          <p class="has-text-justified" style="margin-top: 1em;">
+            <strong>(A)</strong> Evolved behavioral axes drive population diversity with paired on/off playbooks.
+            <strong>(B)</strong> Sample personas generated by <span class="ppol-mono">PPol</span> for a retail task, each with distinct communication patterns.
+            <strong>(C)</strong> Reflection over a minibatch provides natural-language feedback to guide the next mutation.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Results -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Results</h2>
+
+        <h3 class="title is-4">Benchmark Performance on &tau;<sup>2</sup>-bench</h3>
+        <div class="content has-text-justified">
+          <p>
+            Evolved <span class="ppol-mono">PPol</span> consistently achieves the highest fitness score across all combinations of domains and user-simulator LLMs, yielding up to <strong>+61.6 pp</strong> improvement over the default base simulator.
+          </p>
+        </div>
+
+        <div class="content has-text-centered">
+          <img src="./static/images/table1.png" alt="Table 1: Results on tau2-bench" style="width: 100%;">
+        </div>
+
+        <!-- Evolution Curves -->
+        <h3 class="title is-4" style="margin-top: 2em;">Evolution Curves</h3>
+        <div class="content has-text-justified">
+          <p>
+            The fitness score improves steadily during evolutionary search. Coverage is naturally lower early in the curriculum (smaller persona counts) but rises as optimization pressure shifts toward larger populations.
+          </p>
+        </div>
+        <div class="content has-text-centered">
+          <img src="./static/images/train_val_evolution_scores_side_by_side.png" alt="Evolution training and validation curves" style="width: 100%; max-width: 900px;">
+        </div>
+
+        <!-- PCA Scatter -->
+        <h3 class="title is-4" style="margin-top: 2em;">Behavioral Fingerprint Space</h3>
+        <div class="columns is-centered">
+          <div class="column is-two-thirds">
+            <div class="content has-text-centered">
+              <img src="./static/images/fingerprint_scatter.png" alt="PCA projection of behavioral fingerprints" style="width: 100%;">
+            </div>
+            <div class="content has-text-justified">
+              <p>
+                PCA projection of behavioral fingerprints. Evolved <span class="ppol-mono">PPol</span> personas (green) expand from the narrow base-simulator cluster (red) to cover the broader human reference distribution (blue). Domain: Retail, Simulator: DeepSeek-V3.1.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Human Evaluation -->
+        <h3 class="title is-4" style="margin-top: 2em;">Human Evaluation</h3>
+        <div class="columns is-centered">
+          <div class="column is-two-thirds">
+            <div class="content has-text-centered">
+              <img src="./static/images/human_eval_rating_distribution.png" alt="Human evaluation results" style="width: 100%;">
+            </div>
+            <div class="content has-text-justified">
+              <p>
+                In a blinded study with 16 annotators and 87 conversations, <span class="ppol-mono">PPol</span>-conditioned users were judged as human <strong>80.4%</strong> of the time, close to real human traces and nearly <strong>2&times;</strong> more frequently than the default &tau;<sup>2</sup> simulator (46.5%). The difference is statistically significant (Welch's <em>t</em> = 3.556, <em>p</em> = 6.37 &times; 10<sup>&minus;4</sup>).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agent Training -->
+        <h3 class="title is-4" style="margin-top: 2em;">Training Agents with <span class="ppol-mono">PPol</span></h3>
+        <div class="content has-text-justified">
+          <p>
+            Agents fine-tuned on <span class="ppol-mono">PPol</span>-augmented data are more robust to challenging, out-of-distribution user behaviors. Both SFT variants use identical hyperparameters and training volume so that gains isolate the benefit of behavioral diversity under an equal compute budget.
+          </p>
+        </div>
+
+        <div class="content has-text-centered">
+          <img src="./static/images/table2.png" alt="Table 2: Task Success Rate with PPol-augmented training" style="width: 100%; max-width: 800px;">
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{chopra2026persona,
+  title     = {Beyond Cooperative Simulators: Generating Realistic User Personas for Robust Evaluation of LLM Agents},
+  author    = {Chopra, Harshita and Ghate, Kshitish and Caliskan, Aylin and Kohno, Tadayoshi and Shah, Chirag and Jaques, Natasha},
+  journal   = {arXiv preprint arXiv:2605.12894},
+  year      = {2026},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/Persona_Policies_Paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/harshita-chopra/persona-policies" class="external-link">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            We thank the authors of <a href="https://nerfies.github.io/">Nerfies</a> that kindly open sourced the template of this website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
