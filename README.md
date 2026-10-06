@@ -1,5 +1,7 @@
 # Persona Policies
 
+> **[Beyond Cooperative Simulators: Generating Realistic User Personas for Robust Evaluation of LLM Agents](https://arxiv.org/abs/2605.12894)**
+
 **ppol** is a Python framework for evolving realistic, diverse user-simulator personas for LLM agent benchmarks. It is a plug-and-play overlay that injects behavioral variation into user simulators *without* changing task goals, rewards, or environment state.
 
 ```bash
@@ -27,19 +29,18 @@ def my_agent(messages):           # any function: messages → reply
     return "How can I help?"
 
 runner = SimpleEpisodeRunner(agent=my_agent, user_sim_model="gpt-4o-mini")
-tasks = DataLoader.load_tasks("tasks.json")          # your tasks
+tasks = DataLoader.load_tasks("tasks.json")               # your benchmark tasks
 train, val, _ = split_tasks(tasks)
 
-dialogs = DataLoader.load_dialogs("human_dialogs.json")   # your real human chats
-compute_human_reference(dialogs, "outputs/ref/human.json")
-collect_baseline(runner, tasks, "outputs/ref/baseline.json")
-train_discriminator("outputs/ref/human.json", "outputs/ref/baseline.json", "outputs/ref/disc.pkl")
+dialogs = DataLoader.load_dialogs("human_dialogs.json")   # real human chats as reference
+human_ref, baseline, disc = "outputs/ref/human.json", "outputs/ref/baseline.json", "outputs/ref/disc.pkl"
+compute_human_reference(dialogs, human_ref)
+collect_baseline(runner, tasks, baseline)
+train_discriminator(human_ref, baseline, disc)
 
 p = PPol(output_dir="outputs/my_run")
 p.evolve(runner=runner, train_tasks=train, val_tasks=val,
-         human_reference_path="outputs/ref/human.json",
-         baseline_path="outputs/ref/baseline.json",
-         discriminator_path="outputs/ref/disc.pkl",
+         human_reference_path=human_ref, baseline_path=baseline, discriminator_path=disc,
          iterations=50)
 ```
 

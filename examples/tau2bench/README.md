@@ -78,20 +78,16 @@ from ppol.pipeline import collect_baseline, train_discriminator
 runner = Tau2BenchRunner()
 train, val, _ = split_tasks(runner.get_tasks())
 
-compute_tau2bench_human_reference("outputs/ref/human_retail.json", domain="retail")
-collect_baseline(runner, runner.get_tasks(), "outputs/ref/baseline_retail.json", n_workers=4)
-train_discriminator(
-    human_reference_path="outputs/ref/human_retail.json",
-    baseline_fingerprints_path="outputs/ref/baseline_retail.json",
-    output_path="outputs/ref/discriminator_retail.pkl",
-)
+human_ref, baseline, disc = (
+    "outputs/ref/human_retail.json", "outputs/ref/baseline_retail.json", "outputs/ref/discriminator_retail.pkl")
+compute_tau2bench_human_reference(human_ref, domain="retail")
+collect_baseline(runner, runner.get_tasks(), baseline, n_workers=4)
+train_discriminator(human_reference_path=human_ref, baseline_fingerprints_path=baseline, output_path=disc)
 
 p = PPol(output_dir="outputs/retail")
 p.evolve(
     runner=runner, train_tasks=train, val_tasks=val,
-    human_reference_path="outputs/ref/human_retail.json",
-    baseline_path="outputs/ref/baseline_retail.json",
-    discriminator_path="outputs/ref/discriminator_retail.pkl",
+    human_reference_path=human_ref, baseline_path=baseline, discriminator_path=disc,
     iterations=200,
 )
 ```
