@@ -1,8 +1,8 @@
 # Persona Policies
 
-> **[Beyond Cooperative Simulators: Generating Realistic User Personas for Robust Evaluation of LLM Agents](https://arxiv.org/abs/2605.12894)**
+> Check out our paper: **[Beyond Cooperative Simulators: Generating Realistic User Personas for Robust Evaluation of LLM Agents](https://arxiv.org/abs/2605.12894)**
 
-**ppol** is a Python framework for evolving realistic, diverse user-simulator personas for LLM agent benchmarks. It is a plug-and-play overlay that injects behavioral variation into user simulators *without* changing task goals, rewards, or environment state.
+**Persona Policies (PPol)** is a Python framework for evolving realistic, diverse user-simulator personas for LLM agent benchmarks. It is a plug-and-play overlay that injects behavioral variation into user simulators *without* changing task goals, rewards, or environment state.
 
 ```bash
 pip install ppol
@@ -10,14 +10,14 @@ pip install ppol
 
 ## What it does
 
-LLM-based user simulators (τ²-bench, ColBench, etc.) tend to be overly cooperative and homogeneous — a behavioral gap relative to real users. ppol closes the gap by:
+LLM-based user simulators (τ²-bench, ColBench, etc.) tend to be overly cooperative and homogeneous — a behavioral gap relative to real users. PPol closes the gap by:
 
 1. **Generating a population of persona policies** — short natural-language overlays appended to the user simulator's system prompt that shape *how* the user communicates (terse, distracted, frustrated, guarded, …) while task facts stay fixed.
 2. **Optimizing the persona generator via evolutionary program search** (OpenEvolve), with two objectives:
    - **Human-likeness** — mean `P(human)` from a trained Random Forest discriminator on behavioral fingerprints
    - **Behavioral coverage** — two-sided Chamfer distance against a human reference distribution
 
-The result is a generator `G(c, D, N)` that, given a task context and number of personas, produces N diverse, human-shaped persona policies.
+The result is a generator `G(c, D, N)` that, given a task context and number of personas, produces N diverse, human-like persona policies that can be appended to user simulator's system prompt.
 
 ## Quick start
 
@@ -73,7 +73,7 @@ pyproject.toml
 
 Each `examples/<name>/` follows the same pattern: a self-contained `EpisodeRunner` subclass plus its own driver and any domain-specific data/scripts. They are *not* part of the installed wheel — use them by running their scripts directly (`python examples/<name>/run_pipeline.py`) or by adding the directory to `PYTHONPATH`.
 
-**Data:** nothing to fetch manually. τ²-bench tasks come with the `tau2-bench` install; all human-reference datasets auto-download from the Hugging Face Hub on first use — τ² human dialogues (`cmu-lti/tau-usi`), ColBench (`facebook/collaborative_agent_bench` + `SALT-NLP/SWE-chat`), WildChat (`Salesforce/RealUserSim`).
+**Data:** We evaluate on 3 datasets. τ²-bench tasks come with the `tau2-bench` install; all human-reference datasets auto-download from the Hugging Face Hub on first use — τ² human dialogues (`cmu-lti/tau-usi`), ColBench (`facebook/collaborative_agent_bench` + human reference from `SALT-NLP/SWE-chat`), WildChat (`Salesforce/RealUserSim`).
 
 ## Running τ²-bench
 
